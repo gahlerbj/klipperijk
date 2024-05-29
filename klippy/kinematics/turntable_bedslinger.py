@@ -22,7 +22,7 @@ class TurntableBedslingerKinematics:
         self.rails = [stepper.LookupMultiRail(config.getsection('stepper_' + n))
                       for n in 'xyzc']
         for rail, axis in zip(self.rails, 'xyzc'):
-            rail.setup_itersolve('trunnion_bc_stepper_alloc', axis.encode(), self.offset_x, self.offset_y, self.offset_z, self.offset_a, self.offset_b, self.offset_c)
+            rail.setup_itersolve('turntable_stepper_alloc', axis.encode(), self.offset_x, self.offset_y, self.offset_z, self.offset_a, self.offset_b, self.offset_c)
         for s in self.get_steppers():
             s.set_trapq(toolhead.get_trapq())
             toolhead.register_step_generator(s.generate_steps)
