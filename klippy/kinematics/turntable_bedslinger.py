@@ -1,13 +1,14 @@
 # Code for handling the kinematics of Trunnion BC robots
 #
-# Copyright (C) 2023- Flummoxeds <gahlerbj@gmail.com>
+# Copyright (C) 2024- Flummoxed <gahlerbj@gmail.com>
+# based on work by @_geek_gear_ <gear2nd.droid@gmail.com>
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import logging
 import stepper
 import math
 
-class TrunnionBcKinematics:
+class TurntableBedslingerKinematics:
     def __init__(self, toolhead, config):
         self.printer = config.get_printer()
         self.toolhead = toolhead
@@ -140,4 +141,4 @@ class TrunnionBcKinematics:
         }
 
 def load_kinematics(toolhead, config):
-    return TrunnionBcKinematics(toolhead, config)
+    return TurntableBedslingerKinematics(toolhead, config)
