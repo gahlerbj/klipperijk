@@ -1,6 +1,6 @@
 # Code for handling the kinematics of Trunnion BC robots
 #
-# Copyright (C) 2023-  @_geek_gear_ <gear2nd.droid@gmail.com>
+# Copyright (C) 2023- Flummoxeds <gahlerbj@gmail.com>
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import logging
@@ -19,8 +19,8 @@ class TrunnionBcKinematics:
         self.offset_c = math.radians(config.getfloat('offset_c'))
         # Setup axis rails
         self.rails = [stepper.LookupMultiRail(config.getsection('stepper_' + n))
-                      for n in 'xyzbc']
-        for rail, axis in zip(self.rails, 'xyzbc'):
+                      for n in 'xyzc']
+        for rail, axis in zip(self.rails, 'xyzc'):
             rail.setup_itersolve('trunnion_bc_stepper_alloc', axis.encode(), self.offset_x, self.offset_y, self.offset_z, self.offset_a, self.offset_b, self.offset_c)
         for s in self.get_steppers():
             s.set_trapq(toolhead.get_trapq())
@@ -36,6 +36,7 @@ class TrunnionBcKinematics:
         self.limits = [(1.0, -1.0)] * 5
         ranges = [r.get_range() for r in self.rails]
         ranges.insert(3, (0.0, 0.0)) #insert a dummy "a" axis range for Coord constructor
+        ranges.insert(3, (0.0, 0.0)) #insert a dummy "b" axis range for Coord constructor
         self.axes_min = toolhead.Coord(*[r[0] for r in ranges], e=0.)
         self.axes_max = toolhead.Coord(*[r[1] for r in ranges], e=0.)
         # trunnion
@@ -45,9 +46,8 @@ class TrunnionBcKinematics:
         hx = self.rails[0].get_homing_info()
         hy = self.rails[1].get_homing_info()
         hz = self.rails[2].get_homing_info()
-        hb = self.rails[3].get_homing_info()
-        hc = self.rails[4].get_homing_info()
-        self.home_position = [hx.position_endstop, hy.position_endstop, hz.position_endstop, 0., hb.position_endstop, hc.position_endstop]
+        hc = self.rails[3].get_homing_info()
+        self.home_position = [hx.position_endstop, hy.position_endstop, hz.position_endstop, 0., 0., hc.position_endstop]
         # for debug
         self.gcode = self.printer.lookup_object('gcode')
     def get_steppers(self):
@@ -57,7 +57,7 @@ class TrunnionBcKinematics:
         pos = self.home_position
         return pos
     def set_position(self, newpos, homing_axes):
-        for i in (0, 1, 2, 3, 4):
+        for i in (0, 1, 2, 3):
             self.rails[i].set_position(newpos)
             if i in homing_axes:
                 self.limits[i] = self.rails[i].get_range()
@@ -76,8 +76,6 @@ class TrunnionBcKinematics:
         elif axis == 2:
             homepos[axis] = hi.position_endstop
         elif axis == 4:
-            homepos[axis] = hi.position_endstop
-        elif axis == 5:
             homepos[axis] = hi.position_endstop
         forcepos = list(homepos)
         if hi.positive_dir:
@@ -100,7 +98,6 @@ class TrunnionBcKinematics:
         pos = toolhead.get_position()
         pos[2] = self.after_homing_z_position
         toolhead.manual_move(pos, hz.speed) 
-        self._home_axis(homing_state, 5, self.rails[4])
         self._home_axis(homing_state, 4, self.rails[3])
         home_pos = (self.home_position[0], self.home_position[1], self.home_position[2], self.home_position[3], self.home_position[4], self.home_position[5], 0.0)
         self.toolhead.set_position(home_pos)
@@ -108,7 +105,6 @@ class TrunnionBcKinematics:
         pos[0] = 0.0
         pos[1] = 0.0
         pos[3] = 0.0
-        pos[4] = 0.0
         toolhead.manual_move(pos, hz.speed) 
     def _motor_off(self, print_time):
         self.limits = [(1.0, -1.0)] * 3
