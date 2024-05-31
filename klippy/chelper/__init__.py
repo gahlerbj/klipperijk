@@ -164,6 +164,10 @@ defs_kin_trunnion_bc = """
 						double offset_a, double offset_b, double offset_c);
 """
 
+defs_kin_turntable = """
+    struct stepper_kinematics *turntable_stepper_alloc(char type);
+"""
+
 defs_serialqueue = """
     #define MESSAGE_MAX 64
     struct pull_queue_message {
@@ -222,7 +226,7 @@ defs_all = [
     defs_itersolve, defs_trapq, defs_trdispatch,
     defs_kin_cartesian, defs_kin_corexy, defs_kin_corexz, defs_kin_delta,
     defs_kin_deltesian, defs_kin_polar, defs_kin_rotary_delta, defs_kin_winch,
-    defs_kin_extruder, defs_kin_shaper, defs_kin_trunnion_bc, 
+    defs_kin_extruder, defs_kin_shaper, defs_kin_trunnion_bc, defs_kin_turntable,
 ]
 
 # Update filenames to an absolute path
